@@ -1,0 +1,227 @@
+
+    <!doctype html>
+<html>
+
+<head>
+    <title>Socket.IO chat</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font: 13px Helvetica, Arial;
+        }
+        
+        .main_form {
+            background: #000;
+            padding: 3px;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+        
+        .main_input {
+            border: 0;
+            padding: 10px;
+            width: 90%;
+            margin-right: .5%;
+        }
+        
+        .btn_form {
+            width: 9%;
+            background: rgb(130, 224, 255);
+            border: none;
+            padding: 10px;
+        }
+        
+        #messages {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+        }
+        
+        #messages li {
+            padding: 5px 10px;
+        }
+        
+        #messages li:nth-child(odd) {
+            background: #eee;
+        }
+    </style>
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+
+</head>
+
+<body>
+    <button type="button" class="btn btn-info btn-lg" data-toggle="modal" data-target="#myModal">Username</button>
+    <button id="btn_add">Add User</button>
+    <button id="send_message">Add Message</button>
+    <button id="btn_group">ask like activity</button>
+    <button id="btn_match">ask Match activity</button>
+    
+    <ul id="messages"></ul>
+    <form action="" class="main_form">
+        <input id="m" autocomplete="off" class="main_input" />
+        <input id="to_user" autocomplete="off" class="" placeholder="to user id" />
+        <button class="btn_form">Send</button>
+    </form>
+    <!-- Modal -->
+    <div id="myModal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Enter your nick name</h4>
+                </div>
+                <div class="modal-body">
+                    <form action="" class="form_user">
+                        <label>Username:</label>
+                        <input type="text" id="username" autocomplete="off" />
+                        </br>
+                        <button class="btn btn-primary"> &nbsp;&nbsp;Send</button>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
+    <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+
+    <script>
+        var socket = io();
+               //var socket2 = io("http://192.168.0.208:8555/", {query: 'user_id=14' });
+
+        $('.main_form').submit(function () {
+            socket.emit('messageSend', $('#m').val(), $('#to_user').val());
+            $('#m').val('');
+            return false;
+        });
+
+        $('.form_user').submit(function () {
+
+            socket.emit('addUser', $('#username').val());
+            $('#myModal').modal('toggle');
+            return false;
+        });
+
+        // To user group.
+        $("#onemessage").on('click', function () {
+            socket.emit('onMessageSend', '196', $('#to_user').val(), '0', $('#m').val(), '1', '0')
+        })
+
+        // To user group messages.
+        $("#groupmessage").on('click', function () {
+            socket.emit('onMessageSend', '76', $('#to_user').val(), '0', $('#m').val(), '1', '0');
+            
+        });
+        
+        
+         $("#ask_thread").on('click', function () {
+            socket.emit('askThreadId', '12', '13', '0')
+        });
+        
+        socket.on('onMessageChat', function (msg) {
+            $('#messages').append($('<li>').text(msg));
+        });
+        // To user managment.
+        socket.on('returnThreadId', function (msg) {
+            $('#messages').append($('<li>').text(msg));
+        });
+
+        // On message Receive.
+        socket.on('onMessageReceive', function (msg) {
+            $('#messages').append($('<li>').text(msg));
+        });
+        socket.on('returnLikeActivity', function (msg) {
+            $('#messages').append($('<li>').text(msg));
+        });
+        socket.on('returnMatchActivity', function (msg) {
+            $('#messages').append($('<li>').text(msg));
+        });
+
+        // On usr management.
+        $("#btn_add").on('click', function () {
+            socket.emit('add user', '12');
+
+        });
+         $("#send_message").on('click', function () {
+             var date_time_u = new Date().toISOString();
+                    var startTime = new Date(date_time_u);
+             
+                    var date_time =   new Date( startTime.getTime() + (startTime.getTimezoneOffset()+540)*60*1000 );
+                    date_time_final = date_time.getFullYear()+'-'+("0" +date_time.getDate()).slice(-2)+'-'+("0" + (date_time.getMonth() + 1)).slice(-2)+' '+date_time.getHours()+':'+date_time.getMinutes()+':'+date_time.getSeconds();
+//             alert(date_time_final);return false;
+//             var date_time_u = new Date().toISOString();
+//                    var startTime = new Date(date_time_u);
+//             
+//                    date_time =   new Date( startTime.getTime() + (startTime.getTimezoneOffset()+540)*60*1000 );
+////             alert(date_time.getMinutes());return false;
+//             alert(date_time.getFullYear()+'-'+("0" +date_time.getDate()).slice(-2)+'-'+("0" + (date_time.getMonth() + 1)).slice(-2)+' '+date_time.getHours()+':'+date_time.getMinutes()+':'+date_time.getSeconds());
+//             return false;
+//            socket.emit('add user', '12');
+             socket.emit('onMessageSend', 'Testing message new', 56, 5, 1, 1, 'ABC');
+
+        });
+
+        // ask for history
+        //        $("#ask_history").on('click', function () {
+        //
+        //            socket.emit('askHistory', '75', '295', '35kjlxwp14i', '0', '0');
+        //        });
+
+        // ask for history
+        $("#ask_history").on('click', function () {
+
+            socket.emit('askHistory', '24', '21', '1', '0', '0');
+        });
+
+        $("#m").on("keyup", function (event) {
+            socket.emit('isTyping', true);
+        });
+
+        $("#group_select").on('change', function () {
+
+            var pp = $("#group_select option:selected").val()
+
+            socket.emit('chatroompush', pp, $('#to_user').val);
+
+        });
+
+            
+
+        $("#btn_group").on('click', function () {
+
+            socket.emit('askLikeActivity', $("#to_user").val(),0);
+        });
+        
+         $("#btn_match").on('click', function () {
+
+            socket.emit('askMatchActivity', $("#to_user").val(),0);
+        });
+
+        
+
+        //for typing status.
+        socket.on("isTyping", function (address) {
+
+            $("#typing_status").html(address);
+            setTimeout(function () {
+                $("#typing_status").html('  ');
+            }, 2000);
+
+        });
+    </script>
+</body>
+
+</html>
+
